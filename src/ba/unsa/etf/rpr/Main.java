@@ -21,6 +21,20 @@ public class Main {
         }
         return retval;
     }
+
+    public static void glavniGrad(){
+        System.out.println("Drzavu: ");
+        Scanner scanner = new Scanner(System.in);
+        String drzava = scanner.nextLine();
+        Grad grad = GeografijaDAO.getInstance().glavniGrad(drzava);
+        if (grad != null) {
+            System.out.println("Glavni grad države " + drzava + " je " + grad.getNaziv());
+        }
+        else {
+            System.out.println("Nepostojeca država");
+        }
+
+    }
 }
 
 // morao sam prebaciti (smanjiti) verziju jave na 8
