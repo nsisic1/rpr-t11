@@ -93,14 +93,29 @@ public class GeografijaDAO {
             if (d == null) {
                 return;
             }
+            // Prvo brisemo gradove, potreban je id drzave
+            izbrisiGradove(drzava);
+
             PreparedStatement stmt = conn.prepareStatement("DELETE FROM drzave WHERE naziv = ?");
             stmt.setString(1, drzava);
             stmt.executeUpdate();
-            // Izbrisati gradove ove drzave
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+    }
 
+    private void izbrisiGradove(String drzava) throws SQLException {
+        int dID; // ID drzave u bazi
+        String nadjiId = "SELECT id FROM drzava WHERE naziv = ?";
+        PreparedStatement stmt = conn.prepareStatement(nadjiId);
+        stmt.setString(1, drzava);
+        ResultSet resultSet = stmt.executeQuery();
+        resultSet.next();
+        dID = resultSet.getInt(1);
+
+        stmt = conn.prepareStatement("DELETE FROM grad WHERE drzava = ?");
+        stmt.setInt(1, dID);
+        stmt.executeUpdate();
     }
 
     public Drzava nadjiDrzavu(String drzava) {
