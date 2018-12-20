@@ -59,7 +59,9 @@ public class GeografijaDAO {
     }
 
     Grad glavniGrad(String drzava) {
-        // TODO vratiti null ako drzava ne postoji
+        if (nadjiDrzavu(drzava) == null) {
+            return null;
+        }
         try {
             PreparedStatement stmt = conn.prepareStatement("SELECT grad.naziv, broj_stanovnika, drzava.naziv," +
                     "FROM grad, drzava WHERE drzava.naziv = ? AND grad.id = drzava.id");
