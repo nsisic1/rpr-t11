@@ -58,4 +58,30 @@ public class GeografijaDAO {
 
     }
 
+    Grad glavniGrad(String drzava) {
+        // TODO vratiti null ako drzava ne postoji
+        try {
+            PreparedStatement stmt = conn.prepareStatement("SELECT grad.naziv, broj_stanovnika, drzava.naziv," +
+                    "FROM grad, drzava WHERE drzava.naziv = ? AND grad.id = drzava.id");
+            stmt.setString(1, drzava);
+            ResultSet resultSet = stmt.executeQuery();
+
+            while (resultSet.next()) {
+                if (resultSet.getString(3).equals(drzava)) {
+                    Grad grad = new Grad();
+                    grad.setNaziv(resultSet.getString(1));
+                    grad.setBrojStanovnika(resultSet.getInt(2));
+                    Drzava d = new Drzava();
+                    d.setNaziv(resultSet.getString(3));
+                    d.setGlavniGrad(grad);
+                    grad.setDrzava(d);
+                    return grad;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null; // u slucaju da ne postoji glavni grad ?
+    }
 }
