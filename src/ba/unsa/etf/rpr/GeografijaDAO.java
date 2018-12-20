@@ -87,6 +87,22 @@ public class GeografijaDAO {
         return null; // u slucaju da ne postoji glavni grad ?
     }
 
+    public void obrisiDrzavu(String drzava) {
+        Drzava d = nadjiDrzavu(drzava);
+        try {
+            if (d == null) {
+                return;
+            }
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM drzave WHERE naziv = ?");
+            stmt.setString(1, drzava);
+            stmt.executeUpdate();
+            // Izbrisati gradove ove drzave
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
     public Drzava nadjiDrzavu(String drzava) {
         Drzava d = new Drzava();
         try {
