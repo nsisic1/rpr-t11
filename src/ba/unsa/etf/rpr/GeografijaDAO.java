@@ -171,6 +171,23 @@ public class GeografijaDAO {
         }
     }
 
+    public void dodajDrzavu(Drzava drzava) {
+        // TODO: uradi
+    }
+
+    public void izmijeniGrad(Grad grad) {
+        try {
+            PreparedStatement stmt = conn.prepareStatement("UPDATE grad SET naziv = ?, brojStanovnika = ?, drzava = ? WHERE id = ?");
+            stmt.setString(1, grad.getNaziv());
+            stmt.setInt(2, grad.getBrojStanovnika());
+            // TODO naci id drzave
+            // TODO: naci id grada
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public Drzava nadjiDrzavu(String drzava) {
         Drzava d = new Drzava();
         try {
