@@ -9,6 +9,19 @@ public class GeografijaDAO {
 
     private static Connection conn;
 
+    private static PreparedStatement nadjiDrzavu;
+    private static PreparedStatement nadjiGlavniGradDrzave;
+    private static PreparedStatement obrisiDrzavuNeIGradove;
+    private static PreparedStatement obrisiGradoveDrzave;
+    private static PreparedStatement nadjiGradoveSortBrStanovnika;
+    private static PreparedStatement unesiGrad;
+    private static PreparedStatement unesiDrzavu;
+    private static PreparedStatement promijeniGrad;
+
+
+
+
+
     private static void initialize() throws SQLException { // TODO: zabiljezi: staticna metoda, kreira intancu
         instance = new GeografijaDAO();
     }
@@ -19,11 +32,11 @@ public class GeografijaDAO {
 
         conn = DriverManager.getConnection(url);
         try {
+            pripremiUpite();
             generirajTabeleAkoNePostoje();
 
         } catch (SQLException e) {
             System.out.println("ACACACCA");
-            // tabele baze vec postoje
         }
     }
 
@@ -53,6 +66,10 @@ public class GeografijaDAO {
     }
 
     private void generirajTabeleAkoNePostoje() throws SQLException { // TODO: kad se koji bacaju izuzetci
+
+        // TODO ovako uraditi: provjeriti je li postoji BAZA (try baza* nesto catch), ako postoji nista ne raditi
+        // * bilo koji upit (?)
+
         Statement stmt = conn.createStatement();
         String generirajDrzave = "CREATE TABLE \"drzava\" ( `id` INTEGER, `naziv` TEXT, `glavni_grad` INTEGER," +
                 "FOREIGN KEY(`glavni_grad`) REFERENCES `grad`, PRIMARY KEY(`id`) )";
@@ -136,8 +153,8 @@ public class GeografijaDAO {
     public ArrayList<Grad> gradovi() {
         ArrayList<Grad> retval = new ArrayList<Grad>();
         try {
-            PreparedStatement stmt = conn.prepareStatement("SELECT grad.id, grad.naziv, brojStanovnika, drzava, drzava.naziv, " +
-                    "drzava.glavniGrad FROM grad, drzava WHERE grad.drzava = drzava.id ORDER BY brojStanovnika DESC");
+            PreparedStatement stmt = conn.prepareStatement("SELECT grad.id, grad.naziv, broj_stanovnika, drzava, drzava.naziv, " +
+                    "drzava.glavniGrad FROM grad, drzava WHERE grad.drzava = drzava.id ORDER BY broj_stanovnika DESC");
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 Grad grad = new Grad();
@@ -236,6 +253,28 @@ public class GeografijaDAO {
         dodajGrad(noviGrad);
     }
 
+    private static void pripremiUpite() {
+        try {
+            nadjiGlavniGradDrzave = conn.prepareStatement("SELECT grad.naziv, broj_stanovnika, drzava.naziv, " +
+                    "FROM grad, drzava WHERE drzava.naziv = ? AND drzava.grad = grad.id");
+            obrisiDrzavuNeIGradove = conn.prepareStatement("DELETE FROM drzava WHERE naziv = ?");
+            obrisiGradoveDrzave = conn.prepareStatement("DELETE FROM grad WHERE drzava = ?");
+            /* nadjiGradoveSortBrStanovnika = conn.prepareStatement(
+                    "SELECT grad.id, grad.naziv, broj_stanovnika, drzava, drzava.naziv, drzava.glavniGrad " +
+                    "FROM grad, drzava WHERE grad.drzava = drzava.id ORDER BY broj_stanovnika DESC"); */ // TODO: zabiljezi: mozda??? je bolje ne ovu veliku nego ovu obicnu a za nalazenje drzave ono za drzavu
+            nadjiGradoveSortBrStanovnika = conn.prepareStatement("SELECT id, naziv, brojStanovnika, drzava " +
+                    " FROM grad ORDER BY broj_stanovnika DESC");
+            unesiGrad = conn.prepareStatement("INSERT OR REPLACE INTO gradovi(naziv, brojStanovnika, drzava) VALUES(?, ?, ?)");
+            unesiDrzavu = conn.prepareStatement(""); // TODO
+            promijeniGrad = conn.prepareStatement("UPDATE grad SET naziv = ?, brojStanovnika = ?, drzava = ? WHERE id = ?");
+            nadjiDrzavu = conn.prepareStatement("SELECT id, naziv, grad FROM drzava WHERE naziv = ?");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
     private void popuniTabele() {
         // Pariz
         Grad pariz = new Grad();
@@ -282,3 +321,8 @@ public class GeografijaDAO {
     }
 
 }
+
+
+// TODO nakon iteriranja zatvoriti kursor kojim iteriramo kroz resultSet; mada ce se vjerovatno sam zatvoriti
+// moze se i desiti da baza ostane zauzeta (neko vrijeme?) ako neki upit nije kako treba
+// getGradFromResultSet

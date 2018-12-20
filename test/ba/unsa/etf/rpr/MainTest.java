@@ -2,7 +2,7 @@ package ba.unsa.etf.rpr;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MainTest {/*
+class MainTest {
 
     @org.junit.jupiter.api.Test
     void ispisiGradove() {
@@ -13,5 +13,5 @@ class MainTest {/*
                 "Manchester (Velika Britanija) - 545500\n" +
                 "Graz (Austrija) - 280200\n";
         assertEquals(expected, result);
-    }*/
+    }
 }
