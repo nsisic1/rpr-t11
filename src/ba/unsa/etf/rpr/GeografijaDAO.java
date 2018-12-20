@@ -84,4 +84,19 @@ public class GeografijaDAO {
 
         return null; // u slucaju da ne postoji glavni grad ?
     }
+
+    public Drzava nadjiDrzavu(String drzava) {
+        Drzava d = new Drzava();
+        try {
+            PreparedStatement stmt = conn.prepareStatement("SELECT naziv, glavni_grad FROM drzave WHERE naziv = ?");
+            stmt.setString(1, drzava);
+            ResultSet resultSet = stmt.executeQuery();
+            d.setNaziv(resultSet.getString(1));
+            return d;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
 }
