@@ -11,6 +11,16 @@ public class Main {
         GeografijaDAO geo = GeografijaDAO.getInstance();
         System.out.println("Tntntnnt");
     }
+
+    public static String ispisiGradove(){
+        ArrayList<Grad> gradovi = GeografijaDAO.getInstance().gradovi();
+        String retval = "";
+        for (Grad grad: gradovi) {
+            retval += grad.getNaziv() + "(" + grad.getDrzava().getNaziv() + ")" + " - " +
+                    grad.getBrojStanovnika() + "\n";
+        }
+        return retval;
+    }
 }
 
 // morao sam prebaciti (smanjiti) verziju jave na 8
