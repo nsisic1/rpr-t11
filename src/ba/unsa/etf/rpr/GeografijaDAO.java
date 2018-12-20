@@ -1,6 +1,7 @@
 package ba.unsa.etf.rpr;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class GeografijaDAO {
 
@@ -116,6 +117,33 @@ public class GeografijaDAO {
         stmt = conn.prepareStatement("DELETE FROM grad WHERE drzava = ?");
         stmt.setInt(1, dID);
         stmt.executeUpdate();
+    }
+
+    public ArrayList<Grad> gradovi() {
+        ArrayList<Grad> retval = new ArrayList<Grad>();
+        try {
+            PreparedStatement stmt = conn.prepareStatement("SELECT grad.id, grad.naziv, brojStanovnika, drzava, drzava.naziv, " +
+                    "drzava.glavniGrad FROM grad, drzava WHERE grad.drzava = drzava.id ORDER BY brojStanovnika DESC");
+            ResultSet resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                Grad grad = new Grad();
+                Drzava d = new Drzava();
+                grad.setNaziv(resultSet.getString(2));
+                grad.setBrojStanovnika(resultSet.getInt(3));
+                d.setNaziv(resultSet.getString(6));
+                // Prolazeci sve gradove u bazi ovom while petljom, sigurno cemo proci i kroz sve gradove koji su ujedno
+                // i glavni gradovi svojih drzava, to provjeravamo ovdje
+                if (resultSet.getInt(1) == resultSet.getInt(6)) {
+                    d.setGlavniGrad(grad);
+                }
+                grad.setDrzava(d);
+                retval.add(grad);
+            }
+            return retval;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public Drzava nadjiDrzavu(String drzava) {
