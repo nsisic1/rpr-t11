@@ -18,10 +18,6 @@ public class GeografijaDAO {
     private static PreparedStatement unesiDrzavu;
     private static PreparedStatement promijeniGrad;
 
-
-
-
-
     private static void initialize() throws SQLException { // TODO: zabiljezi: staticna metoda, kreira intancu
         instance = new GeografijaDAO();
     }
@@ -29,8 +25,8 @@ public class GeografijaDAO {
     private GeografijaDAO() throws SQLException {
         String url = "jdbc:sqlite:baza.db";
         System.out.println("HEHEHEHH");
-
         conn = DriverManager.getConnection(url);
+
         try {
             pripremiUpite();
             generirajTabeleAkoNePostoje();
@@ -255,19 +251,18 @@ public class GeografijaDAO {
 
     private static void pripremiUpite() {
         try {
-            nadjiGlavniGradDrzave = conn.prepareStatement("SELECT grad.naziv, broj_stanovnika, drzava.naziv, " +
-                    "FROM grad, drzava WHERE drzava.naziv = ? AND drzava.grad = grad.id");
+            nadjiGlavniGradDrzave = conn.prepareStatement("SELECT grad.naziv, broj_stanovnika, drzava.naziv FROM grad, drzava WHERE drzava.naziv = ? AND drzava.glavni_grad = grad.id;");
             obrisiDrzavuNeIGradove = conn.prepareStatement("DELETE FROM drzava WHERE naziv = ?");
             obrisiGradoveDrzave = conn.prepareStatement("DELETE FROM grad WHERE drzava = ?");
             /* nadjiGradoveSortBrStanovnika = conn.prepareStatement(
                     "SELECT grad.id, grad.naziv, broj_stanovnika, drzava, drzava.naziv, drzava.glavniGrad " +
                     "FROM grad, drzava WHERE grad.drzava = drzava.id ORDER BY broj_stanovnika DESC"); */ // TODO: zabiljezi: mozda??? je bolje ne ovu veliku nego ovu obicnu a za nalazenje drzave ono za drzavu
-            nadjiGradoveSortBrStanovnika = conn.prepareStatement("SELECT id, naziv, brojStanovnika, drzava " +
+            nadjiGradoveSortBrStanovnika = conn.prepareStatement("SELECT id, naziv, broj_stanovnika, drzava " +
                     " FROM grad ORDER BY broj_stanovnika DESC");
-            unesiGrad = conn.prepareStatement("INSERT OR REPLACE INTO gradovi(naziv, brojStanovnika, drzava) VALUES(?, ?, ?)");
+            unesiGrad = conn.prepareStatement("INSERT OR REPLACE INTO grad(naziv, broj_stanovnika, drzava) VALUES(?, ?, ?)");
             unesiDrzavu = conn.prepareStatement(""); // TODO
-            promijeniGrad = conn.prepareStatement("UPDATE grad SET naziv = ?, brojStanovnika = ?, drzava = ? WHERE id = ?");
-            nadjiDrzavu = conn.prepareStatement("SELECT id, naziv, grad FROM drzava WHERE naziv = ?");
+            promijeniGrad = conn.prepareStatement("UPDATE grad SET naziv = ?, broj_stanovnika = ?, drzava = ? WHERE id = ?");
+            nadjiDrzavu = conn.prepareStatement("SELECT id, naziv, glavni_grad FROM drzava WHERE naziv = ?");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -276,6 +271,7 @@ public class GeografijaDAO {
 
 
     private void popuniTabele() {
+        // TODO pomocu sql izraza
         // Pariz
         Grad pariz = new Grad();
         pariz.setNaziv("Pariz");
@@ -326,3 +322,7 @@ public class GeografijaDAO {
 // TODO nakon iteriranja zatvoriti kursor kojim iteriramo kroz resultSet; mada ce se vjerovatno sam zatvoriti
 // moze se i desiti da baza ostane zauzeta (neko vrijeme?) ako neki upit nije kako treba
 // getGradFromResultSet
+// kroz gui da se moze vidjeti da li rade (ispravno) metode
+
+// sqlite ne dozvoljava naknadno dodavanje foreign key-eva?
+// izbriso not null restrikcije jer su one mozda uzrokovale "foreign key mismatch"
