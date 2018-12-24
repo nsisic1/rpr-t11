@@ -179,23 +179,24 @@ public class GeografijaDAO {
             // return ako grad vec postoji?
 
             // Nadjemo id drzave
-            int dID;
-            String nadjiId = "SELECT id FROM drzava WHERE naziv = ?";
-            PreparedStatement stmt = conn.prepareStatement(nadjiId);
-            System.out.println(grad.getNaziv());
-            System.out.println(grad.getDrzava().getNaziv());
-            System.out.println("BBBBBBBBBBBBBBBBBBBBBB");
+            int drzavaId = 0;
+            if (grad.getDrzava() != null) {
+                nadjiDrzavu.setString(1, grad.getDrzava().getNaziv());
+                ResultSet resultSet = nadjiDrzavu.executeQuery();
+                if (resultSet.next()) {
+                    drzavaId = resultSet.getInt(1);
+                } else {
+                    return;
+                }
+            }
 
-            stmt.setString(1, grad.getDrzava().getNaziv());
-            ResultSet resultSet = stmt.executeQuery();
-            resultSet.next();
-            dID = resultSet.getInt(1);
+            // INSERT OR REPLACE INTO grad(naziv, broj_stanovnika, drzava) VALUES(?, ?, ?)
+            unesiGrad.setString(1, grad.getNaziv());
+            unesiGrad.setInt(2, grad.getBrojStanovnika());
 
-            stmt = conn.prepareStatement("INSERT OR REPLACE INTO gradovi(naziv, brojStanovnika, drzava) VALUES(?, ?, ?)");
-            stmt.setString(1, grad.getNaziv());
-            stmt.setInt(2, grad.getBrojStanovnika());
-            stmt.setInt(3, dID);
-            stmt.executeUpdate();
+            if (grad.getDrzava() != null) {
+                unesiGrad.setInt(3, drzavaId);
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
