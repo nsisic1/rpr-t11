@@ -6,7 +6,6 @@ public class Drzava {
     private Grad glavniGrad;
 
     public Drzava() {
-
     }
 
     public String getNaziv() {
