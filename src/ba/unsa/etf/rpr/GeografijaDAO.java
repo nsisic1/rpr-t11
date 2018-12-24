@@ -91,22 +91,18 @@ public class GeografijaDAO {
             return null;
         }
         try {
-            PreparedStatement stmt = conn.prepareStatement("SELECT grad.naziv, broj_stanovnika, drzava.naziv," +
-                    "FROM grad, drzava WHERE drzava.naziv = ? AND grad.id = drzava.id");
-            stmt.setString(1, drzava);
-            ResultSet resultSet = stmt.executeQuery();
+            nadjiGlavniGradDrzave.setString(1, drzava);
+            ResultSet resultSet = nadjiGlavniGradDrzave.executeQuery();
 
-            while (resultSet.next()) {
-                if (resultSet.getString(3).equals(drzava)) {
-                    Grad grad = new Grad();
-                    grad.setNaziv(resultSet.getString(1));
-                    grad.setBrojStanovnika(resultSet.getInt(2));
-                    Drzava d = new Drzava();
-                    d.setNaziv(resultSet.getString(3));
-                    d.setGlavniGrad(grad);
-                    grad.setDrzava(d);
-                    return grad;
-                }
+            if (resultSet.next()) { // trebao bi samo jedan
+                Grad grad = new Grad();
+                grad.setNaziv(resultSet.getString(1));
+                grad.setBrojStanovnika(resultSet.getInt(2));
+                Drzava d = new Drzava();
+                d.setNaziv(resultSet.getString(drzava));
+                d.setGlavniGrad(grad);
+                grad.setDrzava(d);
+                return grad;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -251,12 +247,9 @@ public class GeografijaDAO {
 
     private static void pripremiUpite() {
         try {
-            nadjiGlavniGradDrzave = conn.prepareStatement("SELECT grad.naziv, broj_stanovnika, drzava.naziv FROM grad, drzava WHERE drzava.naziv = ? AND drzava.glavni_grad = grad.id;");
+            nadjiGlavniGradDrzave = conn.prepareStatement("SELECT grad.naziv, broj_stanovnika FROM grad, drzava WHERE drzava.naziv = ? AND drzava.glavni_grad = grad.id;");
             obrisiDrzavuNeIGradove = conn.prepareStatement("DELETE FROM drzava WHERE naziv = ?");
             obrisiGradoveDrzave = conn.prepareStatement("DELETE FROM grad WHERE drzava = ?");
-            /* nadjiGradoveSortBrStanovnika = conn.prepareStatement(
-                    "SELECT grad.id, grad.naziv, broj_stanovnika, drzava, drzava.naziv, drzava.glavniGrad " +
-                    "FROM grad, drzava WHERE grad.drzava = drzava.id ORDER BY broj_stanovnika DESC"); */ // TODO: zabiljezi: mozda??? je bolje ne ovu veliku nego ovu obicnu a za nalazenje drzave ono za drzavu
             nadjiGradoveSortBrStanovnika = conn.prepareStatement("SELECT id, naziv, broj_stanovnika, drzava " +
                     " FROM grad ORDER BY broj_stanovnika DESC");
             unesiGrad = conn.prepareStatement("INSERT OR REPLACE INTO grad(naziv, broj_stanovnika, drzava) VALUES(?, ?, ?)");
