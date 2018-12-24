@@ -207,13 +207,16 @@ public class GeografijaDAO {
     }
 
     public void izmijeniGrad(Grad grad) {
+        //             promijeniGrad = conn.prepareStatement("UPDATE grad SET naziv = ?, broj_stanovnika = ?, drzava = ? WHERE id = ?");
         try {
-            PreparedStatement stmt = conn.prepareStatement("UPDATE grad SET naziv = ?, brojStanovnika = ?, drzava = ? WHERE id = ?");
-            stmt.setString(1, grad.getNaziv());
-            stmt.setInt(2, grad.getBrojStanovnika());
-            // TODO naci id drzave
-            // TODO: naci id grada
-            stmt.executeUpdate();
+            promijeniGrad.setString(1, grad.getNaziv());
+            promijeniGrad.setInt(2, grad.getBrojStanovnika());
+            nadjiDrzavu.setString(1, grad.getDrzava().getNaziv());
+            ResultSet resultSet = nadjiDrzavu.executeQuery();
+            if (resultSet.next()) {
+                promijeniGrad.setInt(3, resultSet.getInt(3));
+            }
+            promijeniGrad.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
