@@ -68,19 +68,20 @@ public class GeografijaDAO {
         // * bilo koji upit (?)
 
         Statement stmt = conn.createStatement();
-        String generirajDrzave = "CREATE TABLE \"drzava\" ( `id` INTEGER, `naziv` TEXT, `glavni_grad` INTEGER," +
-                "FOREIGN KEY(`glavni_grad`) REFERENCES `grad`, PRIMARY KEY(`id`) )";
+        try {
+            //
+        } catch (Exception e) {
+            // Ne postoji baza
+        }
+
+
+        String generirajDrzave = "CREATE TABLE `drzava` ( `id` INTEGER, `naziv` TEXT, `glavni_grad` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`glavni_grad`) REFERENCES `grad`(`id`) )";
+        String generirajGradove = "CREATE TABLE \"grad\" ( `id` INTEGER, `naziv` TEXT, `broj_stanovnika` INTEGER, `drzava` INTEGER, FOREIGN KEY(`drzava`) REFERENCES `drzava`(`id`), PRIMARY KEY(`id`) )";
+                //"CREATE TABLE \"drzava\" ( `id` INTEGER, `naziv` TEXT, `glavni_grad` INTEGER," +                "FOREIGN KEY(`glavni_grad`) REFERENCES `grad`, PRIMARY KEY(`id`) )";
         try {
             stmt.executeQuery(generirajDrzave);
-        } catch (SQLException e) {
-            // Drzave vec postoje
-        }
-        String generirajGradove = "CREATE TABLE \"grad\" ( `id` INTEGER, `naziv` TEXT, `broj_stanovnika` INTEGER," +
-                " `drzava` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`drzava`) REFERENCES `drzava` )";
-        try {
             stmt.executeQuery(generirajGradove);
         } catch (SQLException e) {
-            // Gradovi vec postoje
         }
 
         popuniTabele();
@@ -97,8 +98,8 @@ public class GeografijaDAO {
 
             if (resultSet.next()) { // trebao bi samo jedan
                 Grad grad = new Grad();
-                grad.setNaziv(resultSet.getString(1));
-                grad.setBrojStanovnika(resultSet.getInt(2));
+                grad.setNaziv(resultSet.getString(2));
+                grad.setBrojStanovnika(resultSet.getInt(3));
                 Drzava d = new Drzava();
                 d.setNaziv(resultSet.getString(drzava));
                 d.setGlavniGrad(grad);
@@ -112,33 +113,41 @@ public class GeografijaDAO {
         return null; // u slucaju da ne postoji glavni grad ?
     }
 
-    public void obrisiDrzavu(String drzava) throws SQLException {
-        nadjiDrzavu.setString(1, drzava);
-        ResultSet resultSet = nadjiDrzavu.executeQuery();
-        if (!resultSet.next()) {
-            return; // nema drzave
-        }
-        Drzava d = nadjiDrzavu(drzava);
+    public void obrisiDrzavu(String drzava) {
         try {
-            izbrisiGradove(drzava); // Prvo brisemo sve gradove ove drzave
-            obrisiDrzavuNeIGradove.setString(1, drzava);
-            obrisiDrzavuNeIGradove.executeUpdate();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+            nadjiDrzavu.setString(1, drzava);
+            ResultSet resultSet = nadjiDrzavu.executeQuery();
+            if (!resultSet.next()) {
+                return; // nema drzave
+            }
+            Drzava d = nadjiDrzavu(drzava);
+            try {
+                izbrisiGradove(drzava); // Prvo brisemo sve gradove ove drzave
+                obrisiDrzavuNeIGradove.setString(1, drzava);
+                obrisiDrzavuNeIGradove.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } catch (SQLException e) {
+            //
         }
     }
 
-    private void izbrisiGradove(String drzava) throws SQLException {
-        nadjiDrzavu.setString(1, drzava);
-        ResultSet resultSet = nadjiDrzavu.executeQuery();
-        int drzavaId;
-        if (resultSet.next()) {
-            drzavaId = resultSet.getInt(1);
-        } else {
-            return;
+    private void izbrisiGradove(String drzava) {
+        try {
+            nadjiDrzavu.setString(1, drzava);
+            ResultSet resultSet = nadjiDrzavu.executeQuery();
+            int drzavaId;
+            if (resultSet.next()) {
+                drzavaId = resultSet.getInt(1);
+            } else {
+                return;
+            }
+            obrisiGradoveDrzave.setInt(1, drzavaId);
+            obrisiGradoveDrzave.executeUpdate();
+        } catch (SQLException e) {
+            //
         }
-        obrisiGradoveDrzave.setInt(1, drzavaId);
-        obrisiGradoveDrzave.executeUpdate();
     }
 
     public ArrayList<Grad> gradovi() {
@@ -202,17 +211,21 @@ public class GeografijaDAO {
         }
     }
 
-    private void dodajDrzavu(Drzava drzava) throws SQLException {
-        unesiDrzavu.setString(1, drzava.getNaziv());
-        // trazimo id glavnog grada
-        nadjiGlavniGradDrzave.setString(1, drzava.getNaziv());
-        ResultSet resultSet = nadjiGlavniGradDrzave.executeQuery();
-        int glavniGradID = 0;
-        if (resultSet.next()) {
-            glavniGradID = resultSet.getInt(1);
-            unesiDrzavu.setInt(2, glavniGradID);
+    public void dodajDrzavu(Drzava drzava) {
+        try {
+            unesiDrzavu.setString(1, drzava.getNaziv());
+            // trazimo id glavnog grada
+            nadjiGlavniGradDrzave.setString(1, drzava.getNaziv());
+            ResultSet resultSet = nadjiGlavniGradDrzave.executeQuery();
+            int glavniGradID = 0;
+            if (resultSet.next()) {
+                glavniGradID = resultSet.getInt(1);
+                unesiDrzavu.setInt(2, glavniGradID);
+            }
+            unesiDrzavu.executeUpdate();
+        } catch (SQLException e) {
+            return;
         }
-        unesiDrzavu.executeUpdate();
     }
 
     public void izmijeniGrad(Grad grad) {
