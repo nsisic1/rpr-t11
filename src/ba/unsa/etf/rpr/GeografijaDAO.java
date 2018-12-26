@@ -18,6 +18,7 @@ public class GeografijaDAO {
     private static PreparedStatement unesiDrzavu;
     private static PreparedStatement promijeniGrad;
     private static PreparedStatement nadjiDrzavuPoID;
+    private static PreparedStatement nadjiGlavniGradID;
 
     private static void initialize() throws SQLException { // TODO: zabiljezi: staticna metoda, kreira intancu
         instance = new GeografijaDAO();
@@ -31,21 +32,12 @@ public class GeografijaDAO {
 
         try {
             conn = DriverManager.getConnection(url);
-            // kreirajPopuniTabele();
-
+            kreirajPopuniTabele();
+            System.out.println("1234");
+            pripremiUpite();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        /*try {
-            boolean cond = generirajTabeleAkoNePostoje(); // bitan redoslijed, kad je ova bila iznad generirajTabe.., bacalo error
-            pripremiUpite();
-            if (cond) {
-                popuniTabele();
-            }
-        } catch (SQLException e) {
-            System.out.println("ACACACCA");
-        }*/
     }
 
     public static GeografijaDAO getInstance() {
@@ -54,6 +46,7 @@ public class GeografijaDAO {
                 initialize();
             }
         } catch (SQLException e) {
+            System.out.println("BWBWBBWBWBBW");
             e.printStackTrace();
         }
         return instance;
@@ -65,11 +58,10 @@ public class GeografijaDAO {
         }
         try {
             conn.close();
-            conn = null;
         } catch (SQLException ex) {
-            System.out.println("BWBWBBWBWBBW");
             ex.printStackTrace();
         }
+        conn = null;
         instance = null;
     }
 
@@ -82,18 +74,12 @@ public class GeografijaDAO {
             stmt = conn.prepareStatement("CREATE TABLE IF NOT EXISTS \"grad\" ( `id` INTEGER, `naziv` TEXT, `broj_stanovnika` INTEGER," +
                     " `drzava` INTEGER, FOREIGN KEY(`drzava`) REFERENCES `drzava`(`id`), PRIMARY KEY(`id`) )");
             stmt.execute();
+            System.out.println("0000");
+            pripremiUpite();
             popuniTabele();
         } catch (Exception e) {
-            // Ne postoji baza
+            System.out.println("CCC");
         }
-    }
-
-    private void generirajTabeleAkoNePostoje() throws SQLException { // TODO: kad se koji bacaju izuzetci
-
-        // TODO ovako uraditi: provjeriti je li postoji BAZA (try baza* nesto catch), ako postoji nista ne raditi
-        // * bilo koji upit (?)
-
-
     }
 
 
@@ -234,14 +220,14 @@ public class GeografijaDAO {
 
     public void dodajDrzavu(Drzava drzava) {
         try {
-            System.out.println(unesiDrzavu);
             unesiDrzavu.setString(1, drzava.getNaziv());
             // trazimo id glavnog grada
-            nadjiGlavniGradDrzave.setString(1, drzava.getNaziv());
-            ResultSet resultSet = nadjiGlavniGradDrzave.executeQuery();
+            nadjiGlavniGradID.setString(1, drzava.getGlavniGrad().getNaziv()); // drzava jos nije dodana... treba naci ID GLAVNOG GRADA
+            ResultSet resultSet = nadjiGlavniGradID.executeQuery();
             int glavniGradID = 0;
             if (resultSet.next()) {
                 glavniGradID = resultSet.getInt(1);
+                System.out.println("AP" + glavniGradID);
                 unesiDrzavu.setInt(2, glavniGradID);
             }
             unesiDrzavu.executeUpdate();
@@ -306,6 +292,7 @@ public class GeografijaDAO {
             unesiDrzavu = conn.prepareStatement("INSERT OR REPLACE INTO drzava(naziv, glavni_grad) VALUES(?, ?)");
             promijeniGrad = conn.prepareStatement("UPDATE grad SET naziv = ?, broj_stanovnika = ?, drzava = ? WHERE id = ?");
             nadjiDrzavu = conn.prepareStatement("SELECT id, naziv, glavni_grad FROM drzava WHERE naziv = ?");
+            nadjiGlavniGradID = conn.prepareStatement("SELECT id FROM grad WHERE naziv = ?");
             nadjiDrzavuPoID = conn.prepareStatement("SELECT id, naziv, glavni_grad FROM drzava WHERE id = ?");
             System.out.println("Upiti pripremljeni");
         } catch (SQLException e) {
@@ -318,7 +305,7 @@ public class GeografijaDAO {
     private void popuniTabele() throws SQLException {
         PreparedStatement gradovi = conn.prepareStatement("INSERT INTO grad(naziv, broj_stanovnika) VALUES " +
                 " ('Pariz', 2200000), ('London', 8136000), ('Bec', 1867000), ('Manchester', 510746), ('Graz', 283869);");
-        gradovi.executeUpdate();
+
         // TODO: preko settera, izbrisati ctor?
         Grad pariz = new Grad("Pariz", 2200000, null);
         Grad london = new Grad("London", 8136000, null);
@@ -341,6 +328,7 @@ public class GeografijaDAO {
         dodajDrzavu(francuska);
         dodajDrzavu(velikaB);
         dodajDrzavu(austrija);
+
     }
 
 }
