@@ -18,7 +18,6 @@ class GeografijaDAOTest {
         GeografijaDAO dao = GeografijaDAO.getInstance();
         ArrayList<Grad> gradovi = dao.gradovi();
         assertEquals("London", gradovi.get(0).getNaziv());
-        System.out.println(gradovi.get(1).getDrzava());
         assertEquals("Francuska", gradovi.get(1).getDrzava().getNaziv());
     }
 

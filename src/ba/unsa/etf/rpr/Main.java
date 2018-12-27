@@ -16,7 +16,7 @@ public class Main {
         ArrayList<Grad> gradovi = GeografijaDAO.getInstance().gradovi();
         String retval = "";
         for (Grad grad: gradovi) {
-            retval += grad.getNaziv() + "(" + grad.getDrzava().getNaziv() + ")" + " - " +
+            retval += grad.getNaziv() + " (" + grad.getDrzava().getNaziv() + ")" + " - " +
                     grad.getBrojStanovnika() + "\n";
         }
         return retval;
