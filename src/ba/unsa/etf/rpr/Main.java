@@ -6,10 +6,8 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        //System.out.println("Gradovi su:\n" + ispisiGradove());
-        //glavniGrad();
         GeografijaDAO geo = GeografijaDAO.getInstance();
-        System.out.println("Tntntnnt");
+        glavniGrad();
     }
 
     public static String ispisiGradove(){
@@ -23,7 +21,7 @@ public class Main {
     }
 
     public static void glavniGrad(){
-        System.out.println("Drzavu: ");
+        System.out.println("Unesite drzavu: ");
         Scanner scanner = new Scanner(System.in);
         String drzava = scanner.nextLine();
         Grad grad = GeografijaDAO.getInstance().glavniGrad(drzava);
