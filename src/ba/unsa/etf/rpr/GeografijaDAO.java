@@ -152,6 +152,7 @@ public class GeografijaDAO {
 
     public ArrayList<Grad> gradovi() {
         ArrayList<Grad> retval = new ArrayList<Grad>();
+        System.out.println();
         try {
             ResultSet resultSet = nadjiGradoveSortBrStanovnikaD.executeQuery();
 
@@ -161,6 +162,7 @@ public class GeografijaDAO {
 
         try {
 
+            // nadjiGradoveSortBrStanovnikaD = conn.prepareStatement("SELECT grad.id, grad.naziv, broj_stanovnika, grad.drzava, drzava.naziv, glavni_grad FROM grad, drzava WHERE grad.drzava = drzava.id ORDER BY broj_stanovnika DESC");
             // nadjiGradoveSortBrStanovnikaD = conn.prepareStatement("SELECT grad.id, grad.naziv, broj_stanovnika, grad.drzava, drzava.naziv, glavni_grad FROM grad, drzava WHERE grad.drzava = drzava.id ORDER BY broj_stanovnika DESC");
             System.out.println(2222222);
             ResultSet resultSet = nadjiGradoveSortBrStanovnikaD.executeQuery();
@@ -303,10 +305,17 @@ public class GeografijaDAO {
 
 
     private void popuniTabele() throws SQLException {
-        PreparedStatement gradovi = conn.prepareStatement("INSERT INTO grad(naziv, broj_stanovnika) VALUES " +
-                " ('Pariz', 2200000), ('London', 8136000), ('Bec', 1867000), ('Manchester', 510746), ('Graz', 283869);");
+        PreparedStatement gradovi = conn.prepareStatement("INSERT INTO grad(naziv, broj_stanovnika, drzava) VALUES " +
+                " ('Pariz', 2200000, 1), ('London', 8136000, 2), ('Bec', 1867000, 3), ('Manchester', 510746, 2), ('Graz', 283869, 3);");
+        gradovi.execute();
+
+        PreparedStatement drzave = conn.prepareStatement("INSERT INTO drzava(naziv, glavni_grad) VALUES " +
+                " ('Francuska', 1), ('Velika Britanija', 2), ('Austrija', 3);");
+        drzave.execute();
+
 
         // TODO: preko settera, izbrisati ctor?
+        /*
         Grad pariz = new Grad("Pariz", 2200000, null);
         Grad london = new Grad("London", 8136000, null);
         Grad bec = new Grad("Bec", 1867000, null);
@@ -328,6 +337,13 @@ public class GeografijaDAO {
         dodajDrzavu(francuska);
         dodajDrzavu(velikaB);
         dodajDrzavu(austrija);
+
+        izmijeniGrad(pariz);
+        izmijeniGrad(london);
+        izmijeniGrad(bec);
+        izmijeniGrad(manchester);
+        izmijeniGrad(graz);*/
+
 
     }
 
