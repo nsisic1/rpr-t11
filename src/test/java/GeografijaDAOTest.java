@@ -1,5 +1,8 @@
-package ba.unsa.etf.rpr;
 
+import ba.unsa.etf.rpr.Drzava;
+import ba.unsa.etf.rpr.GeografijaDAO;
+import ba.unsa.etf.rpr.Grad;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +28,7 @@ class GeografijaDAOTest {
     void glavniGrad() {
         GeografijaDAO dao = GeografijaDAO.getInstance();
         Grad nepoznat = dao.glavniGrad("Bosna i Hercegovina");
-        assertNull(nepoznat);
+        Assertions.assertNull(nepoznat);
         Grad bech = dao.glavniGrad("Austrija");
         assertEquals("Beč", bech.getNaziv());
     }
@@ -48,7 +51,7 @@ class GeografijaDAOTest {
         dao.obrisiDrzavu("Austrija");
 
         ArrayList<Grad> gradovi = dao.gradovi();
-        assertEquals(3, gradovi.size());
+        Assertions.assertEquals(3, gradovi.size());
         assertEquals("London", gradovi.get(0).getNaziv());
         assertEquals("Pariz", gradovi.get(1).getNaziv());
         assertEquals("Manchester", gradovi.get(2).getNaziv());
