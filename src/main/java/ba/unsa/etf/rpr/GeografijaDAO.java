@@ -25,7 +25,6 @@ public class GeografijaDAO {
 
     private static void initialize() throws SQLException { // TODO: zabiljezi: staticna metoda, kreira intancu
         instance = new GeografijaDAO();
-        System.out.println("Lallalalalal");
     }
 
     private GeografijaDAO() throws SQLException {
